@@ -13,7 +13,7 @@ using PanoCapture.Process;
 
 namespace PanoCapture.Plugin
 {
-    public partial class PanoCapturePlugin : ISettingsPlugin, IOpenWithPlugin, IEditingPlugin
+    public partial class PanoCapturePlugin : ISettingsPlugin, IEditingPlugin // IOpenWithPlugin
     {
         private static readonly BitmapSource Icon = GetImage(Environment.CurrentDirectory + "/miniIcon.png");
 
@@ -72,47 +72,58 @@ namespace PanoCapture.Plugin
 
         #region Open With and Edit With
 
-        public IEnumerable<PluginAction> GetOpenWithActions(IDictionary<string, int> argInfo, OpenWithPluginRole argRole)
-        {
-            if (argRole == OpenWithPluginRole.OpenWithPluginRolePostProcessInDocument)
-            {
-                return Enumerable.Empty<PluginAction>();
-            }
+        #region Open With Not used yet
 
-            if (argRole == OpenWithPluginRole.OpenWithPluginRolePostProcessOutput)
-            {
-                return new[] { _runProcessAction };
-            }
+        // NOT SUPPORTING OPEN WITH YET AS I HAVEN'T TESTED IT AND WON'T USE IT MYSELF. 
 
-            if (!argInfo.Any(a => a.Key == ".jpg" || a.Key == ".jpeg" || a.Key == ".tif" || a.Key == ".tiff"))
-            {
-                return Enumerable.Empty<PluginAction>();
-            }
+        //public IEnumerable<PluginAction> GetOpenWithActions(IDictionary<string, int> argInfo, OpenWithPluginRole argRole)
+        //{
+        //if (argRole == OpenWithPluginRole.OpenWithPluginRolePostProcessInDocument)
+        //{
+        //    return Enumerable.Empty<PluginAction>();
+        //}
 
-            return new[] { _runProcessAction };
-        }
+        //if (argRole == OpenWithPluginRole.OpenWithPluginRolePostProcessOutput)
+        //{
+        //    return new[] { _runProcessAction, _runProcessNoCropAction };
+        //}
+
+        //if (!argInfo.Any(a => a.Key == ".jpg" || a.Key == ".jpeg" || a.Key == ".tif" || a.Key == ".tiff"))
+        //{
+        //    return Enumerable.Empty<PluginAction>();
+        //}
+
+        //return new[] { _runProcessAction, _runProcessNoCropAction };
+        //}
+
+        //public PluginActionOpenWithResult StartOpenWithTask(FileHandlingPluginTask argTask, ReportProgress argProgress)
+        //{
+        //    if (argTask.PluginAction.Identifier == _runProcessAction.Identifier)
+        //    {
+        //        var created = StartPanoCaptureProcessor(argTask, argProgress, true);
+        //        return new PluginActionOpenWithResult();
+        //    } 
+        //    else if(argTask.PluginAction.Identifier == _runProcessNoCropAction.Identifier)
+        //    {
+        //        var created = StartPanoCaptureProcessor(argTask, argProgress, false);
+        //        return new PluginActionOpenWithResult();
+        //    }
+
+        //    return new PluginActionOpenWithResult(false);
+        //}
+
+        #endregion
 
         public IEnumerable<PluginAction> GetEditingActions(IDictionary<string, int> argInfo)
         {
             return new[] { _runProcessAction };
         }
 
-        public PluginActionOpenWithResult StartOpenWithTask(FileHandlingPluginTask argTask, ReportProgress argProgress)
-        {
-            if (argTask.PluginAction.Identifier == _runProcessAction.Identifier)
-            {
-                var created = StartPanoCaptureProcessor(argTask, argProgress);
-                return new PluginActionOpenWithResult();
-            }
-
-            return new PluginActionOpenWithResult(false);
-        }
-
         public PluginActionImageResult StartEditingTask(FileHandlingPluginTask argPluginTask, ReportProgress argProgress)
         {
             if (argPluginTask.PluginAction.Identifier == _runProcessAction.Identifier)
             {
-                var created = StartPanoCaptureProcessor(argPluginTask, argProgress);
+                var created = StartPanoCaptureProcessor(argPluginTask, argProgress, true);
                 return new PluginActionImageResult(new[] { created });
             }
 
@@ -140,12 +151,12 @@ namespace PanoCapture.Plugin
 
         #endregion
 
-        private string StartPanoCaptureProcessor(FileHandlingPluginTask argTask, ReportProgress argProgress)
+        private string StartPanoCaptureProcessor(FileHandlingPluginTask argTask, ReportProgress argProgress, bool crop)
         {
-            return StartPanoCaptureProcessor(argTask.Files, argProgress);
+            return StartPanoCaptureProcessor(argTask.Files, argProgress, crop);
         }
 
-        private string StartPanoCaptureProcessor(IEnumerable<string> inputFiles, ReportProgress argProgress)
+        private string StartPanoCaptureProcessor(IEnumerable<string> inputFiles, ReportProgress argProgress, bool crop)
         {
             var files = inputFiles.Where(f => f != null && (f.EndsWith(".jpeg") || f.EndsWith(".jpg") || f.EndsWith(".tif") || f.EndsWith(".tiff")));
 

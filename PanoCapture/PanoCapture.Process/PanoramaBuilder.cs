@@ -70,7 +70,7 @@ namespace PanoCapture.Process
             return this;
         }
 
-        public PanoramaBuilder Build()
+        public PanoramaBuilder Build(bool crop = true)
         {
             // TODO: Try and async this
 
@@ -83,12 +83,12 @@ namespace PanoCapture.Process
             //   hugin_executor --stitching --prefix=prefix _test-project.pto
             //   nona -m TIFF_m -o project _test-project.pto
 
-            RunBuild();
+            RunBuild(crop);
 
             return this;
         }
 
-        private void RunBuild()
+        private void RunBuild(bool crop)
         {
             try
             {
@@ -109,8 +109,16 @@ namespace PanoCapture.Process
                 SendUpdate(5, numOfSteps, $"Step 5 of {numOfSteps} - Optimising");
                 RunProcessToEnd("autooptimiser.exe", $" -a -m -l -s -o {_outputProjectPath} {_outputProjectPath}");
 
-                SendUpdate(6, numOfSteps, $"Step 6 of {numOfSteps} - Modifying");
-                RunProcessToEnd("pano_modify.exe", $" --canvas=AUTO --crop=AUTO -o {_outputProjectPath} {_outputProjectPath}");
+                if (crop)
+                {
+                    SendUpdate(6, numOfSteps, $"Step 6 of {numOfSteps} - Modifying");
+                    RunProcessToEnd("pano_modify.exe", $" --canvas=AUTO --crop=AUTO -o {_outputProjectPath} {_outputProjectPath}");
+                }
+                else
+                {
+                    SendUpdate(6, numOfSteps, $"Step 6 of {numOfSteps} - Modifying");
+                    RunProcessToEnd("pano_modify.exe", $" --canvas=AUTO -o {_outputProjectPath} {_outputProjectPath}");
+                }
 
                 SendUpdate(7, numOfSteps, $"Step 7 of {numOfSteps} - Executing");
                 RunProcessToEnd("hugin_executor.exe", $" --stitching --prefix={_outputFileName} {_outputProjectPath}");
