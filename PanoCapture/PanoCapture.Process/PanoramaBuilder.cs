@@ -2,7 +2,12 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace PanoCapture.Process
 {
@@ -18,6 +23,7 @@ namespace PanoCapture.Process
         private readonly string _inputFilesAsArguments;
         private readonly StringBuilder _log;
         protected string _generatedFile;
+        private Action<Update> _progressUpdateCallback;
 
         public PanoramaBuilder(string outputPath, params string[] inputFiles)
         {
@@ -57,6 +63,13 @@ namespace PanoCapture.Process
             return this;
         }
 
+        public PanoramaBuilder ConfigureProgressUpdater(Action<Update> callback)
+        {
+            _progressUpdateCallback = callback;
+
+            return this;
+        }
+
         public PanoramaBuilder Build()
         {
             // TODO: Try and async this
@@ -70,16 +83,42 @@ namespace PanoCapture.Process
             //   hugin_executor --stitching --prefix=prefix _test-project.pto
             //   nona -m TIFF_m -o project _test-project.pto
 
+            RunBuild();
+
+            return this;
+        }
+
+        private void RunBuild()
+        {
             try
             {
+                var numOfSteps = 9;
+
+                SendUpdate(1, numOfSteps, $"Step 1 of {numOfSteps} - Creating Hugin project");
                 RunProcessToEnd("pto_gen.exe", $" -o {_outputProjectPath} {_inputFilesAsArguments}");
+
+                SendUpdate(2, numOfSteps, $"Step 2 of {numOfSteps} - Finding points");
                 RunProcessToEnd("cpfind.exe", $" -o {_outputProjectPath} --multirow --celeste {_outputProjectPath}");
+
+                SendUpdate(3, numOfSteps, $"Step 3 of {numOfSteps} - Cleaing points");
                 RunProcessToEnd("cpclean.exe", $" -o {_outputProjectPath} {_outputProjectPath}");
+
+                SendUpdate(4, numOfSteps, $"Step 4 of {numOfSteps} - Finding lines");
                 RunProcessToEnd("linefind.exe", $" -o {_outputProjectPath} {_outputProjectPath}");
+
+                SendUpdate(5, numOfSteps, $"Step 5 of {numOfSteps} - Optimising");
                 RunProcessToEnd("autooptimiser.exe", $" -a -m -l -s -o {_outputProjectPath} {_outputProjectPath}");
+
+                SendUpdate(6, numOfSteps, $"Step 6 of {numOfSteps} - Modifying");
                 RunProcessToEnd("pano_modify.exe", $" --canvas=AUTO --crop=AUTO -o {_outputProjectPath} {_outputProjectPath}");
+
+                SendUpdate(7, numOfSteps, $"Step 7 of {numOfSteps} - Executing");
                 RunProcessToEnd("hugin_executor.exe", $" --stitching --prefix={_outputFileName} {_outputProjectPath}");
+
+                SendUpdate(8, numOfSteps, $"Step 8 of {numOfSteps} - Generating files");
                 RunProcessToEnd("nona.exe", $" -m TIFF_m -o project {_outputProjectPath}");
+
+                SendUpdate(9, numOfSteps, $"Step 9 of {numOfSteps} - Blending");
                 RunProcessToEnd("enblend", $" -o {_outputPath} *.tif");
 
                 _generatedFile = _outputPath;
@@ -93,13 +132,22 @@ namespace PanoCapture.Process
                 SaveLogInTempDir();
                 throw;
             }
-
-            return this;
+            finally
+            {
+            }
         }
 
         public string GetGeneratedFile()
         {
             return _generatedFile;
+        }
+
+        private void SendUpdate(int stepNum, int maxSteps, string message)
+        {
+            if(_progressUpdateCallback != null)
+            {
+                _progressUpdateCallback(new Update(stepNum, maxSteps, message));
+            }
         }
 
         private void RunProcessToEnd(string exe, string args)
@@ -109,6 +157,7 @@ namespace PanoCapture.Process
             startInfo.Arguments = args;
             startInfo.RedirectStandardOutput = true;
             startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
 
             if (!string.IsNullOrEmpty(_tempDir))
             {
@@ -139,5 +188,25 @@ namespace PanoCapture.Process
 
             return Path.Combine(_huginBinPath, tool);
         }
+    }
+
+    public class Update
+    {
+        public Update()
+        {
+        }
+
+        public Update(int stepNum, int maxSteps, string message)
+        {
+            StepNumber = stepNum;
+            StepTotal = maxSteps;
+            StepText = message;
+        }
+
+        public int StepNumber { get; set; }
+
+        public int StepTotal { get; set; }
+
+        public string StepText { get; set; }
     }
 }

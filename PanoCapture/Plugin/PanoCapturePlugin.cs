@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Reflection;
 using PanoCapture.Process;
 
-namespace DemoPlugin
+namespace PanoCapture.Plugin
 {
     public partial class PanoCapturePlugin : ISettingsPlugin, IOpenWithPlugin, IEditingPlugin
     {
@@ -101,7 +101,7 @@ namespace DemoPlugin
         {
             if (argTask.PluginAction.Identifier == _runProcessAction.Identifier)
             {
-                var created = StartPanoCaptureProcessor(argTask);
+                var created = StartPanoCaptureProcessor(argTask, argProgress);
                 return new PluginActionOpenWithResult();
             }
 
@@ -112,7 +112,7 @@ namespace DemoPlugin
         {
             if (argPluginTask.PluginAction.Identifier == _runProcessAction.Identifier)
             {
-                var created = StartPanoCaptureProcessor(argPluginTask);
+                var created = StartPanoCaptureProcessor(argPluginTask, argProgress);
                 return new PluginActionImageResult(new[] { created });
             }
 
@@ -140,12 +140,12 @@ namespace DemoPlugin
 
         #endregion
 
-        private string StartPanoCaptureProcessor(FileHandlingPluginTask argTask)
+        private string StartPanoCaptureProcessor(FileHandlingPluginTask argTask, ReportProgress argProgress)
         {
-            return StartPanoCaptureProcessor(argTask.Files);
+            return StartPanoCaptureProcessor(argTask.Files, argProgress);
         }
 
-        private string StartPanoCaptureProcessor(IEnumerable<string> inputFiles)
+        private string StartPanoCaptureProcessor(IEnumerable<string> inputFiles, ReportProgress argProgress)
         {
             var files = inputFiles.Where(f => f != null && (f.EndsWith(".jpeg") || f.EndsWith(".jpg") || f.EndsWith(".tif") || f.EndsWith(".tiff")));
 
@@ -167,6 +167,7 @@ namespace DemoPlugin
             var builtFile = new PanoramaBuilder(outputFile, inputFiles.ToArray())
                 .SetHuginBinPath(HuginBinPath)
                 .SetTempDir(outputFolder)
+                .ConfigureProgressUpdater((update) => argProgress(update.StepNumber, update.StepTotal, update.StepText))
                 .Build()
                 .SaveLogInTempDir()
                 .GetGeneratedFile();
