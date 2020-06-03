@@ -1,0 +1,1282 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>PhaseOne.Plugin</name>
+    </assembly>
+    <members>
+        <member name="T:PhaseOne.Plugin.FileHandlingPluginTask">
+            <summary>
+            The class represents a specific task that requires files as input. For example,
+            Capture One could process JPEG files and pass the paths to the plugin for it to upload the photos
+            to a social media service.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileHandlingPluginTask.Files">
+            <summary>
+            The input files for the task.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.FileHandlingPluginTask.#ctor(System.Guid,PhaseOne.Plugin.PluginAction,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Initializes a new instance of the <see cref="T:PhaseOne.Plugin.FileHandlingPluginTask" /> class with the specified identifier, action and input files.
+            </summary>
+            <param name="argIdentifier">Unique task identifier.</param>
+            <param name="argPluginAction">The <see cref="T:PhaseOne.Plugin.PluginAction"/> object this task belongs to.</param>
+            <param name="argFiles">The input files for the task.</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.OpenWithPluginRole">
+            <summary>
+            An enum describing where the plugin is called from.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.OpenWithPluginRole.OpenWithPluginRoleOpenOriginal">
+            <summary>
+            Called from Open With menu.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.OpenWithPluginRole.OpenWithPluginRolePostProcessInDocument">
+            <summary>
+            Called from Edit With menu.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.OpenWithPluginRole.OpenWithPluginRolePostProcessOutput">
+            <summary>
+            Called from processed by a recipe.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginAction">
+            <summary>
+            The <see cref="T:PhaseOne.Plugin.PluginAction"/> class represents the abstraction of a specific action that a plugin can perform.
+            Actions are a simple mechanism that helps a plugin communicate to Capture One what it is able to do in a specific set of circumstances.
+            Capture One uses action definitions, represented by instances of the <see cref="T:PhaseOne.Plugin.PluginAction"/>
+            class in order to create UI elements(menu items, etc.) that allow the user to trigger the specific piece of work on the part of the plugin, that the action represents.
+            Some plugins might return the same set of actions irrespective of the particular conditions they are being invoked in (such as the set of files that are being
+            edited), while others might only make sense only when a specific number of files is selected.The <see cref="T:PhaseOne.Plugin.IEditingPlugin"/> protocol allows a plugin to specify which actions
+            it can provide, based on the current state of Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginAction.DisplayName">
+            <summary>
+            The name of the action as it will be displayed to the user.
+            Capture One displays this string in UI elements such as menu items.
+            We recommended keeping it as short and explicit as possible in order
+            to provide a good user experience.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginAction.Identifier">
+            <summary>
+            A unique string identifying the action.
+            Capture One uses this internally so this string will not be shown to the users.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginAction.Image">
+            <summary>
+            An optional image for the action that will be displayed to the user alongside the `displayName`.
+            Capture One displays the image in UI elements such as menu items.
+            Ideally this image should be kept below 32 x 32 pt.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginAction.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.PluginAction"/> class with a given name and an identifier.
+            </summary>
+            <param name="argDisplayName"></param>
+            <param name="argIdentifier"></param>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="argDisplayName"/>is an empty string ("") or contains only white space
+            <paramref name="argIdentifier"/>is an empty string ("") or contains only white space
+            </exception>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argDisplayName"/>
+            <paramref name="argDisplayName"/>
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginOperationCancelled">
+            <summary>
+            The exception that can be thrown when an operation has been cancelled.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginOperationCancelled.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:PhaseOne.Plugin.PluginOperationCancelled" /> class with default properties.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginException">
+            <summary>
+            The exception that can be thrown when plugin cannot provide expected return value. Message of this exception will be shown to users.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginException.#ctor(System.String)">
+            <summary>Initializes a new instance of the <see cref="T:PhaseOne.Plugin.PluginException" /> class with a specified error message.</summary>
+            <param name="argMessage">The error message that explains the reason for the exception. Will be shown to Capture One users</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginTaskExecutingDocumentTypes">
+            <summary>
+            Predefined values for PluginTaskExecutingDocumentType Environment entry.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.PluginTaskExecutingDocumentTypes.PluginTaskDocumentTypeCatalog">
+            <summary>
+            Catalog document type.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.PluginTaskExecutingDocumentTypes.PluginTaskDocumentTypeSession">
+            <summary>
+            Session document type.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginTaskEnvironmentKey">
+            <summary>
+            A key for the dictionary containing information about the task's run environment.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.PluginTaskEnvironmentKey.PluginTaskTemporaryFolder">
+            <summary>
+            Temporary folder containing the task's input files.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.PluginTaskEnvironmentKey.PluginTaskDestinationFolder">
+            <summary>
+            The destination folder so that the plugin can copy its resulting files there.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.PluginTaskEnvironmentKey.PluginTaskExecutingDocumentType">
+            <summary>
+            Is the plugin task executed from a session or a catalog?
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.ReportProgress">
+            <summary>
+            A delegate that is used to report progress for a specific task.
+            </summary>
+            <param name="argCurrentValue">Current value of the progress.</param>
+            <param name="argMaximumValue">Maximum value of the progress.</param>
+            <param name="argMessage">Message to show to users when reporting the progress.</param>
+            <returns>True if a task was cancelled, False when the task is still active.</returns>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginActionImageResult">
+            <summary>
+            Represents the result of a round-trip editing task.
+            A round-trip editing task produces images as result and then passes the paths to those images in the constructor.
+            If the source images were stored in a catalog, Capture One will import the results into the same collection as the source images.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginActionImageResult.Images">
+            <summary>
+             A collection containing the paths of the images resulting from a task.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginActionImageResult.#ctor(System.String[])">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.PluginActionImageResult"/> object with the array of paths to files
+            </summary>
+            <param name="argListOfImagesPaths">An array containing the paths of the images resulting from a task.</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginActionOpenWithResult">
+            <summary>
+            Represents the result of an open with editing task. An open-with task passes its completion status back to Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginActionOpenWithResult.Status">
+            <summary>
+            True if success, False if failure while opening
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginActionOpenWithResult.#ctor(System.Boolean)">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.PluginActionOpenWithResult"/> object with the status
+            </summary>
+            <param name="argStatus">Completion status. Default is true.</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.IVariantProcessing">
+            <summary>
+            The protocol provides a mechanism for specifying the settings that Capture One uses when exporting variants.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IVariantProcessing.GetProcessingSettingsForAction(PhaseOne.Plugin.PluginAction)">
+            <summary>
+            Returns a dictionary containing the default settings for the processing of variants before they are being sent to the plugin.
+            Capture One issues this call before displaying the "Publish variant" processing dialog, in a response to the user selection the publishing action specified by the <see cref="T:PhaseOne.Plugin.PluginAction"/> parameter (only if this <see cref="T:PhaseOne.Plugin.PluginAction"/> hasn't been chosen by a user yet).
+            Users are able to modify these settings and Capture One will persiste them on a per action basis.
+            The return dictionary is used as the initial settings (when the user runs the action for the first time) and when users restore the defaults by selecting the "Reset Tool" - menu item in the "Publish variant" processing dialog.
+            </summary>
+            <param name="argAction"><see cref="T:PhaseOne.Plugin.PluginAction"/> that will be run</param>
+            <returns>Dictionary of key value pairs - <see cref="T:PhaseOne.Plugin.ProcessSettings"/> for more info</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="M:PhaseOne.Plugin.IVariantProcessing.GetProcessingSettingsVisibilityForAction(PhaseOne.Plugin.PluginAction)">
+            <summary>
+            The return value tells Capture One which tabs to show in a plugin processing dialog. See <see cref="T:PhaseOne.Plugin.ProcessingSettingsVisibility"/> for the available options.
+            </summary>
+            <param name="argAction"><see cref="T:PhaseOne.Plugin.PluginAction"/> that will be run</param>
+            <returns><see cref="T:PhaseOne.Plugin.ProcessingSettingsVisibility"/> enum instructing Capture One how much control to give users.</returns>
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessingSettingsVisibility">
+            <summary>
+            Determines how much control users have over the processing settings.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessingSettingsVisibility.None">
+            <summary>
+            Capture One only shows the action settings. The recipe settings can't be manipulated by the user.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessingSettingsVisibility.ShowAll">
+            <summary>
+            Capture One shows all available recipe settings (This is the default).
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.ValidationResult">
+            <summary>
+            Represents the validation result of action settings.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ValidationResult.Errors">
+            <summary>
+            Dictionary containing validation errors.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ValidationResult.HasErrors">
+            <summary>
+            Indicates if <see cref="F:PhaseOne.Plugin.ValidationResult.Errors"/> has any elements
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ValidationResult.#ctor(System.Collections.Generic.Dictionary{System.String,System.String})">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.ValidationResult"/> object with initial dictionary of errors.
+            </summary>
+            <param name="argErrors">dictionary representing errors</param>
+        </member>
+        <member name="M:PhaseOne.Plugin.ValidationResult.#ctor">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.ValidationResult"/> object with empty dictionary of errors.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ValidationResult.AddError(System.String,System.String)">
+            <summary>
+            Add an error to the current list of <see cref="F:PhaseOne.Plugin.ValidationResult.Errors"/>.
+            </summary>
+            <param name="argKey">key of an <see cref="T:PhaseOne.Plugin.Item"/></param>
+            <param name="argErrorDescription">description of the error</param>
+            <returns>True if added. False if <see cref="F:PhaseOne.Plugin.ValidationResult.Errors"/> already contains an element with the same key</returns>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginActionPublishResult">
+            <summary>
+            <see cref="T:PhaseOne.Plugin.PluginActionPublishResult"/> represents the result of a "publish" task.
+            It returns a URL to Capture One.
+            Capture One will then present the result by showing a notification with an "Show" button that opens the URL in the browser.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginActionPublishResult.Uri">
+            <summary>
+             An URI pointing to the results. Could be for example a link to a web service.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginActionPublishResult.Message">
+            <summary>
+            An optional message that will be shown on successful publishing of the images. If not set, Capture One will provide a default one
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginActionPublishResult.#ctor(System.Uri)">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.PluginActionPublishResult"/> object with the given url
+            </summary>
+            <param name="argUri">URI pointing to the results of the publish action (e.g., links to uploaded photos)</param>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginActionPublishResult.#ctor(System.Uri,System.String)">
+            <summary>
+            Initializes a <see cref="T:PhaseOne.Plugin.PluginActionPublishResult"/> object with the given URI and the message
+            </summary>
+            <param name="argUri">URI pointing to the results of the publish action</param>
+            <param name="argMessage">Message to show</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginActionResult">
+            <summary>
+             The <see cref="T:PhaseOne.Plugin.PluginActionResult"/> class is an abstraction of the result of running an action on a plugin(see <see cref="T:PhaseOne.Plugin.PluginAction"/>).
+            Capture One uses one of its subclasses in order to determine how the results should be handled.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginActionResult.SupressNotifications">
+            <summary>
+             Flag indicating whether the Capture One UI should inform users that a plugin action has been completed.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.PluginTask">
+            <summary>
+            A block that allows plugins to notify Capture One that the progress of a task,
+            represented by a <see cref="T:PhaseOne.Plugin.PluginTask"/> object, has been updated.
+            This block is passed to plugins as a parameter to "RunPluginTask" methods and should be invoked when progress updates are waranted.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginTask.Identifier">
+            <summary>
+            Unique task identifier.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginTask.PluginAction">
+            <summary>
+            The <see cref="P:PhaseOne.Plugin.PluginTask.PluginAction"/> object this task belongs to.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginTask.Settings">
+            <summary>
+            A collection containing settings associated with this task.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PluginTask.Environment">
+            <summary>
+            A dictionary containing information about the task's run environment.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PluginTask.#ctor(System.Guid,PhaseOne.Plugin.PluginAction)">
+            <summary>
+            Initializes a new instance of the <see cref="T:PhaseOne.Plugin.PluginTask" /> class with the specified identifier and action.
+            </summary>
+            <param name="argIdentifier">Unique task identifier</param>
+            <param name="argPluginAction">The <see cref="P:PhaseOne.Plugin.PluginTask.PluginAction"/> object this task belongs to.</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.BoolItem">
+            <summary>
+            BoolItem represents a boolean setting.
+            Settings of this type are rendered as check boxes in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.BoolItem.Value">
+            <summary>
+            The state of the boolean value.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.BoolItem.#ctor(System.String,System.String,System.Boolean)">
+            <summary>Initializes a new instance of <see cref="T:PhaseOne.Plugin.BoolItem"/>class that has specified identifier, title and value.</summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <param name="argValue"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.ElementsGroup">
+            <summary>
+            ElementsGroup represents a group of settings. It can contain items like <see cref="T:PhaseOne.Plugin.TextItem"/>, <see cref="T:PhaseOne.Plugin.BoolItem"/> or section of items <see cref="T:PhaseOne.Plugin.ItemsGroup"/>
+            Settings of this type are rendered as a tab in the plugin’s settings panel with a given title.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ElementsGroup.Elements">
+            <summary>
+            An array of setting items (<see cref="F:PhaseOne.Plugin.ElementsGroup.Elements"/>) contained in the group.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ElementsGroup.#ctor(System.String,System.String,PhaseOne.Plugin.Element[])">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.ElementsGroup"/>class that has a given Id, Title, and settings elements copied from specified array.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <param name="argElements"></param>
+            /// <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            <paramref name="argElements"/> is null or any of the elements is null
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.IActionSettings">
+            <summary>
+            The protocol allows plugins to specify settings on a per-action basis. The UI that allows the users to change those settings is rendered by Capture One.
+            The values of these settings are then passed along to the plugin using <see cref="T:PhaseOne.Plugin.PluginTask"/> settings property in the same form as they were provided by the plugin.    
+            This mechanism is very similar to the one exposed by the <see cref="T:PhaseOne.Plugin.ISettingsPlugin"/> protocol, with the exception that all the settings are passed at once when starting action tasks, rather than one by one.
+            Note: Plugin classes don’t need to explicitly adopt this protocol. Once a plugin class adopts either <see cref="T:PhaseOne.Plugin.IEditingPlugin"/>, or <see cref="T:PhaseOne.Plugin.IPublishingPlugin"/>, adoption of <see cref="T:PhaseOne.Plugin.IActionSettings"/> is implicit.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IActionSettings.GetSettings(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Returns the description of the settings UI displayed in the Publish and Edit dialogs. Each <see cref="T:PhaseOne.Plugin.ElementsGroup"/> object returned is displayed as a tab.
+            In real world implementations, the decisin to create one or more tabs would be taken in accordance to the functionality that the plugin provides.
+            It should be noted, however that, in most scenarios, Capture One will place these settings tabs alongside the processing settings tabs.
+            Values provided by implementations of this method are treated as defaults.
+            </summary>
+            <param name="argAction">A <see cref="T:PhaseOne.Plugin.PluginAction"/> object for which to display the settings.</param>
+            <param name="argCurrentValues">Current values of settings. Empty dictionary if none are available.</param>
+            <returns>A collection of <see cref="T:PhaseOne.Plugin.ElementsGroup"/> objects.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="M:PhaseOne.Plugin.IActionSettings.UpdateSettings(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IDictionary{System.String,System.Object},System.String,System.Object)">
+            <summary>
+            Capture One calls this method for every updated setting in action settings. Implementations can use this method to validate and notify Capture One if appropriate.
+            Validation errors can be provided by throwing an exception <see cref="T:PhaseOne.Plugin.PluginException"/>
+            </summary>
+            <param name="argAction">A <see cref="T:PhaseOne.Plugin.PluginAction"/> action for which to display the settings.</param>
+            <param name="argCurrentValues">Current values of settings. Empty dictionary if none are available.</param>
+            <param name="argUpdatedKey">Key of the value that is changing.</param>
+            <param name="argUpdatedValue">A new value for the setting.</param>
+            <returns>A boolean, True - if Capture One should re-fetch setting via another <see cref="M:PhaseOne.Plugin.IActionSettings.GetSettings(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IDictionary{System.String,System.Object})"/> call. False if no need to re-fetch the settings</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="M:PhaseOne.Plugin.IActionSettings.ValidateSettings(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IDictionary{System.String,System.Object})">
+            <summary>
+            Validate the settings values for a plugin action.
+            Capture One calls this method before starting the tasks associated with the COPluginAction represented by the action parameter.
+            If this method returns true, the tasks are then started, otherwise the 
+            </summary>
+            <param name="argAction">A <see cref="T:PhaseOne.Plugin.PluginAction"/> object for which to validate the settings values.</param>
+            <param name="argSettings">A dictionary represting current state of the settings</param>
+            <returns>True - validation ok, False - validation failed</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.IEditingPlugin">
+            <summary>
+            Protocol allows plugins to implement editing capabilities.
+            Editing plugins are plugins that take the path of either processed variants or raw files as inputs, process them in some way and produce a <see cref="T:PhaseOne.Plugin.PluginActionImageResult"/> upon successful completion.
+            This protocol defines the action and result layers in the Action-Task-Result paradigm, for editing plugins.
+            Plugins that adopt this protocol provide <see cref="T:PhaseOne.Plugin.PluginAction"/> definitions that Capture One uses to populate its UI, allowing users to start the tasks required by those actions.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IEditingPlugin.GetEditingActions(System.Collections.Generic.IDictionary{System.String,System.Int32})">
+            <summary>
+            Returns a collection of <see cref="T:PhaseOne.Plugin.PluginAction"/> objects representing the operations the plugin can perform, given the specified number of files.
+            This method must return in "a timely fashion", as it is invoked as a result of a user initiated action, such as opening the Edit With context menu.
+            </summary>
+            <param name="argInfo">
+                The file info dictionary describing the images that are selected for editing.
+                It contains lowercased extensions as keys and the counts of the files for the respective extensions as values. Here’s an example:
+                <example>
+                    var filesInfo = new Dictionary()>&lt;string, int>()
+                    {
+                    { "cr2", 104},
+                    { "dng", 3},
+                    { "iiq", 7},
+                    { "nef", 6},
+                    { "raf", 43},
+                    { "tif", 4}
+                    };
+                </example></param>
+            <returns>A collection of <see cref="T:PhaseOne.Plugin.PluginAction"/> objects.</returns>
+        </member>
+        <member name="M:PhaseOne.Plugin.IEditingPlugin.StartEditingTask(PhaseOne.Plugin.FileHandlingPluginTask,PhaseOne.Plugin.ReportProgress)">
+            <summary>
+            Runs an editing task and returns the result to Capture One.
+            Capture One calls this method when it wants to start the task(s) entailed by the action being performed.
+            Task object provided as input to this method are created by a previous call to <see cref="M:PhaseOne.Plugin.IFileHandlingPlugin.GetTasks(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IEnumerable{System.String})"/> method implemented as part of conforming to the <see cref="T:PhaseOne.Plugin.IEditingPlugin"/> protocol
+            </summary>
+            <param name="argPluginTask">The <see cref="T:PhaseOne.Plugin.FileHandlingPluginTask"/> object to run.</param>
+            <param name="argProgress">A function that should be called in order to notify that it should update the progress information for the task currently being run.</param>
+            <returns>A <see cref="T:PhaseOne.Plugin.PluginActionImageResult"/> object that contains the final product of the plugin tasks run or null if the task was cancelled.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.IFileHandlingPlugin">
+            <summary>
+            The protocol allows plugins to implement file handling capabilities.
+            To Capture One, these are plugins that take files as inputs, perform some type of action on those files and produce a result which Capture One can then use.
+            This protocol forms the basis of the <see cref="T:PhaseOne.Plugin.IEditingPlugin"/> and <see cref="T:PhaseOne.Plugin.IPublishingPlugin"/> protocols and defines the task layer in the Action-Task-Result paradigm.
+            Implementations of the protocol provide the mapping between a <see cref="T:PhaseOne.Plugin.PluginAction"/> and the distinct pieces of work - <see cref="T:PhaseOne.Plugin.PluginTask"/>s - that will be started in order to perform the action on specific files.
+            Note: Plugin classes need not explicitly declare that they conform tho this protocol, as it is inherited by the more specialized plugin protocols: <see cref="T:PhaseOne.Plugin.IEditingPlugin"/>, <see cref="T:PhaseOne.Plugin.IPublishingPlugin"/>.
+            Warning: The interaction between Capture One and plugins that conform to the <see cref="T:PhaseOne.Plugin.IFileHandlingPlugin"/> protocol - or any of the more specialized plugin protocols - is stateless, therefore the methods defined in this protocol may be called multiple times, in any given order.
+            No guarantees are made that the same plugin instance, or even the same instance of the host process will handle two subsequent calls.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IFileHandlingPlugin.GetTasks(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Returns a list of plugin tasks that the action will need to start.
+            Capture One uses the result of this method to show the user what pieces of work the plugin performs, as well as to keep track of thir progress.
+            </summary>
+            <param name="argPluginAction">The <see cref="T:PhaseOne.Plugin.PluginAction"/> to be executed</param>
+            <param name="argFiles">The files that will be processed</param>
+            <returns>A collection of <see cref="T:PhaseOne.Plugin.PluginTask"/> objects.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.IOpenWithPlugin">
+            <summary>
+            The protocol allows plugins to implement open with capabilities.
+            Open with plugins are plugins that take the path of either processed variants or raw files as inputs, open them in an extrnal application and produce a <see cref="T:PhaseOne.Plugin.PluginActionOpenWithResult"/> upon completion.
+            This protocol defines the action and result layers in the Action-Task-Result paradigm, for open with plugins.
+            Plugins that adopt this protocol provide <see cref="T:PhaseOne.Plugin.PluginAction"/> definitions that Capture One uses to populate its UI, allowing users to start the tasks required by those actions.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IOpenWithPlugin.GetOpenWithActions(System.Collections.Generic.IDictionary{System.String,System.Int32},PhaseOne.Plugin.OpenWithPluginRole)">
+            <summary>
+            Returns a collection <see cref="T:PhaseOne.Plugin.PluginAction"/> objects representing the operations the plugin can perform, given the specified file info dictionary.
+            This method must return in "a timely fashion", as it is invoked as a result of a user initiated action, such as opening the Edit With context menu.
+            </summary>
+            <param name="argInfo">
+                The file info dictionary describing the images that are selected for opening.
+                It contains lowercased extensions as keys and the counts of the files for the respective extensions as values. Here’s an example:
+                <example>
+                    var filesInfo = new Dictionary()>&lt;string, int>()
+                    {
+                    { "cr2", 104},
+                    { "dng", 3},
+                    { "iiq", 7},
+                    { "nef", 6},
+                    { "raf", 43},
+                    { "tif", 4}
+                    };
+                </example>
+            </param>
+            <param name="argRole">
+                Parameter describing where the plugin is queried from <see cref="T:PhaseOne.Plugin.OpenWithPluginRole"/>
+            </param>
+            <returns>A collection of <see cref="T:PhaseOne.Plugin.PluginAction"/> objects.</returns>
+        </member>
+        <member name="M:PhaseOne.Plugin.IOpenWithPlugin.StartOpenWithTask(PhaseOne.Plugin.FileHandlingPluginTask,PhaseOne.Plugin.ReportProgress)">
+            <summary>
+            Runs an open-with task and returns the result to Capture One.
+            Capture One calls this method when it wants to start the task(s) entailed by the action being performed.
+            Task object provided as input to this method are created by a previous call to <see cref="M:PhaseOne.Plugin.IFileHandlingPlugin.GetTasks(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IEnumerable{System.String})"/> method implemented as part of conforming to the <see cref="T:PhaseOne.Plugin.IOpenWithPlugin"/> protocol.
+            </summary>
+            <param name="argTask">The <see cref="T:PhaseOne.Plugin.FileHandlingPluginTask"/> object to run.</param>
+            <param name="argProgress">A delegate that should be called in order to notify that it should update the progress information for the task currently being run.</param>
+            <returns>A <see cref="T:PhaseOne.Plugin.PluginActionOpenWithResult"/> object that contains the completion status of the plugin tasks run or null if the task was cancelled.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.IPublishingPlugin">
+            <summary>
+            The protocol allows plugins to implement publishing capabilities.
+            Publishing plugins are plugins that take the path of processed variants as inputs,
+            publish them to a remote service and produce a <see cref="T:PhaseOne.Plugin.PluginActionPublishResult"/> upon successful completion.
+            This protocol defines the action and result layers in the Action-Task-Result paradigm, for publishing plugins.
+            Plugins that adopt this protocol provide PluginAction definitions that Capture One uses to populate its UI, allowing users to start the tasks required by those actions.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.IPublishingPlugin.GetPublishingActions(System.Int32)">
+            <summary>
+            Returns a collection of <see cref="T:PhaseOne.Plugin.PluginAction"/> objects representing the operations the plugin can perform, given the specified number of files.
+            This method must return in "a timely fashion", as it is invoked as a result of a user initiated action, such as opening the Publish context menu.
+            </summary>
+            <param name="argFilesAmount">The number of files that are selected for publishing.</param>
+            <returns>A collection of PluginAction objects.</returns>
+        </member>
+        <member name="M:PhaseOne.Plugin.IPublishingPlugin.StartPublishingTask(PhaseOne.Plugin.FileHandlingPluginTask,PhaseOne.Plugin.ReportProgress)">
+            <summary>
+            Runs a publishing task and returns the result to Capture One.
+            Capture One calls this method when it wants to start the task(s) entailed by the action being performed.
+            Task object provided as input to this method are created by a previous call to <see cref="M:PhaseOne.Plugin.IFileHandlingPlugin.GetTasks(PhaseOne.Plugin.PluginAction,System.Collections.Generic.IEnumerable{System.String})"/> method implemented as part of conforming to the PublishingPlugin protocol
+            </summary>
+            <param name="argPluginTask">The <see cref="T:PhaseOne.Plugin.PluginTask"/> object to run.</param>
+            <param name="argProgress">A delegate that should be called in order to notify that it should update the progress information for the task currently being run.</param>
+            <returns>A <see cref="T:PhaseOne.Plugin.PluginActionPublishResult"/> object that contains the final product of the plugin tasks run or null if the task was cancelled.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.ISettingsPlugin">
+            <summary>
+            The protocol allows plugins to present a customizable settings UI to Capture One users.
+            The settings are rendered inside Capture One’s Plugin Manager located in the Plugins preference pane. (Capture One > Preferences > Plugins).
+            Warning: Capture One does not persist the settings values. It is the responsibility of the plugin’s implementation of this protocol to provide the persistency layer.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ISettingsPlugin.GetSettings">
+            <summary>
+            Returns the description of the settings UI displayed in the plugin manager.
+            Each <see cref="T:PhaseOne.Plugin.ElementsGroup"/> object returned is displayed as a tab.
+            In real world implementations, the decision to create one or more tabs would be taken in accordance to the functionality that the plugin provides.
+            For instance, a plugin that offers both publishing and round-trip editting functionality, or publishing functionality, but to multiple platforms,
+            may want to visually separate the settings pertinent to each type of action - or to each publishing platform - so as to offer the user a clear context for the settings they are customizing.
+            </summary>
+            <returns>A collection of <see cref="T:PhaseOne.Plugin.ElementsGroup"/> objects.</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="M:PhaseOne.Plugin.ISettingsPlugin.UpdateSettings(System.String,System.Object)">
+            <summary>
+            Capture One calls this method for every updated setting in Capture One's plugin manager. Implementations can use this method to persist the setting value and optionally, validate and notify Capture One if appropriate.
+            Validation errors can be provided by throwing an exception <see cref="T:PhaseOne.Plugin.PluginException"/>
+            </summary>
+            <param name="argKey">Key of the item being updated. </param>
+            <param name="argValue">Value to update to. </param>
+            <returns>A boolean, True - if Capture One should re-fetch setting via another <see cref="M:PhaseOne.Plugin.ISettingsPlugin.GetSettings"/> call. False if no need to re-fetch the settings</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="M:PhaseOne.Plugin.ISettingsPlugin.HandleEvent(PhaseOne.Plugin.SettingsEvent,PhaseOne.Plugin.Item)">
+            <summary>
+            Capture One calls this method every time a user interacts with UI elements that broadcast <see cref="T:PhaseOne.Plugin.SettingsEvent"/>,
+            such as buttons - rendered by <see cref="T:PhaseOne.Plugin.ButtonItem"/>.
+            </summary>
+            <param name="argSettingsEvent">The event that occured. The type of the event will be dictated by the <see cref="T:PhaseOne.Plugin.Item"/> subclass object that described the UI element.</param>
+            <param name="argItem">The <see cref="T:PhaseOne.Plugin.Item"/> that triggered the event.</param>
+            <returns>A boolean, True - if Capture One should re-fetch setting via another <see cref="M:PhaseOne.Plugin.ISettingsPlugin.GetSettings"/> call. False if no need to re-fetch the settings</returns>
+            <exception cref="T:PhaseOne.Plugin.PluginException">Throwing this exception will allow plugin communicate to users that current operation cannot be completed.
+            Capture One will display the error message provided in this exception. Messages from other exceptions will not be shown</exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.Element">
+            <summary>
+            Base class for elements:
+            ItemsGroup
+            All items
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.Element.#ctor(System.String,System.String)">
+            <summary></summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <inheritdoc cref="T:PhaseOne.Plugin.SettingsBase"/>
+        </member>
+        <member name="T:PhaseOne.Plugin.Item">
+            <summary>
+            Base class for items like:
+            <see cref="T:PhaseOne.Plugin.TextItem"/>
+            <see cref="T:PhaseOne.Plugin.BoolItem"/>
+            <see cref="T:PhaseOne.Plugin.ListItem"/>
+            <see cref="T:PhaseOne.Plugin.MultipleListItem"/>
+            <see cref="T:PhaseOne.Plugin.PasswordItem"/>
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.Item.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.Item"/> class that has given Id and Title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+        </member>
+        <member name="T:PhaseOne.Plugin.ItemsGroup">
+            <summary>
+            ItemsGroup represents a group of settings. It can contain items like <see cref="T:PhaseOne.Plugin.TextItem"/>, <see cref="T:PhaseOne.Plugin.BoolItem"/> and other <see cref="T:PhaseOne.Plugin.Item"/>s
+            Settings of this type are rendered as a section with a title within a tab
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ItemsGroup.Items">
+            <summary>
+            An array of setting items contained in the group.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ItemsGroup.#ctor(System.String,System.String,PhaseOne.Plugin.Item[])">
+            <summary>
+            Initializes <see cref="T:PhaseOne.Plugin.ItemsGroup"/> with a given Id, Title, and settings items.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <param name="argItems"></param>
+            /// <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            <paramref name="argItems"/> is null or any of the items is null
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.ButtonItem">
+            <summary>
+            ButtonItem represents a button.
+            Settings of this type are rendered as buttons in Capture One.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ButtonItem.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.ButtonItem"/>class that has specified identifier and title
+            </summary>
+            <param name="argId">Id of the button</param>
+            <param name="argTitle">String rendered on the button</param>
+        </member>
+        <member name="T:PhaseOne.Plugin.FileItem">
+            <summary>
+            <see cref="T:PhaseOne.Plugin.FileItem"/> represents a file or directory selection control.
+            Settings of this type are rendered as a readonly text field accompanied by a browse button in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.Value">
+            <summary>
+            Contains the collection of selected file(s) or folder.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.IsFolderSelector">
+            <summary>
+            Indicates whether to allow the user to choose directories. Default: False.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.AllowsMultipleSelections">
+            <summary>
+            Indicates whether to allow the user to open multiple files at a time. Applies only when IsFolderSelector is False. Default: False.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.AllowedFileTypes">
+            <summary>
+            Specifies the types of files the user is allowed to select. Null or empty if all types are allowed.
+            Each file type can be specified using the patern:
+            Label|extension1;extension2
+            Example:
+            Images|*.tiff;*.png;*.jpeg
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.InitialDirectory">
+            <summary>
+            Represents the initial directory that is displayed by a file dialog.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.FileItem.Placeholder">
+            <summary>
+            Represents the placeholder of the selected item label. Shown if the selection is empty.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.FileItem.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.FileItem"/> class that has given Id and Title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.ListItem">
+            <summary>
+            ListItem represents a list of entries (<see cref="T:PhaseOne.Plugin.ListEntry"/>).
+            Settings of this type are rendered as a table view in Capture One.
+            For a list allowing multiple selection, see <see cref="T:PhaseOne.Plugin.MultipleListItem"/>.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ListItem.Entries">
+            <summary>
+            A collection of <see cref="T:PhaseOne.Plugin.ListOption"/> representing the available options.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ListItem.Value">
+            <summary>
+            The value currently selected in the list.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ListItem.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{PhaseOne.Plugin.ListEntry})">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.ListItem"/> class that has specified Id, Title and a collection of entries.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <param name="argEntries"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.PasswordItem">
+            <summary>
+            PasswordItem represents a password setting item - used for sensitive input.
+            Settings of this type are rendered as password input fields in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.PasswordItem.Value">
+            <summary>
+            Password value of the PasswordItem.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.PasswordItem.#ctor(System.String,System.String)">
+            <summary>
+            Initializes <see cref="T:PhaseOne.Plugin.PasswordItem"/> with a given identifier and title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.LabelItem">
+            <summary>
+            LabelItem represents a label that can contain URL Links.
+            Settings of this type are rendered as label items in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.LabelItem.Value">
+            <summary>
+            The string value of the LabelItem.
+            Syntax example "Click [here](http://example.com/) to recover your password."
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.LabelItem.#ctor(System.String,System.String)">
+            <summary>
+            Initializes <see cref="T:PhaseOne.Plugin.LabelItem"/> with a given identifier and title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.ListEntry">
+            <summary>
+            An base class for other entries used for instance by <see cref="T:PhaseOne.Plugin.ListItem"/>
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.ListOption">
+            <summary>
+            ListOption represents an entry in a list of settings (i.e., in <see cref="T:PhaseOne.Plugin.ListItem"/> or <see cref="T:PhaseOne.Plugin.MultipleListItem"/>).
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ListOption.Image">
+            <summary>
+            The icon for the list entry.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ListOption.Title">
+            <summary>
+            The title of the list entry.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.ListOption.Id">
+            <summary>
+            The Id of the list entry
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.ListOption.#ctor(System.String,System.String)">
+            <summary>
+            Initialize a new instance of a <see cref="T:PhaseOne.Plugin.ListOption"/> class that has specified Id and Title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.MultipleListItem">
+            <summary>
+            MultipleListItem represents a list of options (<see cref="T:PhaseOne.Plugin.ListOption"/>) that allows for multiple selection.
+            Settings of this type are rendered as a table views in Capture One.
+            For a list allowing single selection, see <see cref="T:PhaseOne.Plugin.ListOption"/>.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.MultipleListItem.HasSearchField">
+            <summary>
+            Indicates if list should have an input field at the top which is used in order to filter elements through
+            written prase
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.MultipleListItem.Options">
+            <summary>
+            A collection of <see cref="T:PhaseOne.Plugin.ListOption"/> representing the available options.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.MultipleListItem.Values">
+            <summary>
+            A collection of <see cref="T:PhaseOne.Plugin.ListOption"/> representing the currently selected options.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.MultipleListItem.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{PhaseOne.Plugin.ListOption})">
+            <summary>
+            Initializes <see cref="T:PhaseOne.Plugin.MultipleListItem"/> with a given identifier, title and available options.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <param name="argOptions"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            <paramref name="argOptions"/> is null
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.TextItem">
+            <summary>
+            TextItem represents a text setting item.
+            Settings of this type are rendered as text input fields in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.TextItem.Value">
+            <summary>
+            The string value of the TextItem.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.TextItem.#ctor(System.String,System.String)">
+            <summary>
+            Initializes <see cref="T:PhaseOne.Plugin.TextItem"/> with a given identifier and title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.Separator">
+            <summary>
+            Separator represents a separator in a list of settings (i.e., in <see cref="T:PhaseOne.Plugin.ListItem"/>).
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.Separator.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:PhaseOne.Plugin.Separator"/> class.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.SettingsBase">
+            <summary>
+            Base class for all items and elements. 
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.SettingsBase.Title">
+            <summary>
+            The title of the setting. It is used as a label for the setting in Capture One.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.SettingsBase.InformativeText">
+            <summary>
+            An informative text that is provided to the user in Capture One. It should contain details about what is affected by the setting.
+            </summary>
+        </member>
+        <member name="P:PhaseOne.Plugin.SettingsBase.Id">
+            <summary>
+            An identifier of the setting. If a user changes a setting in Capture One, the new value is reported back to the plugin using this identifier.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.SettingsBase.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:PhaseOne.Plugin.SettingsBase"/> class that has specified Id and Title.
+            </summary>
+            <param name="argId"></param>
+            <param name="argTitle"></param>
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="argId"/> is null or an empty string ("").
+            </exception>
+        </member>
+        <member name="T:PhaseOne.Plugin.SettingsEvent">
+            <summary>
+            The event triggered by a user action on a settings control
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.SettingsEvent.ButtonClick">
+            <summary>
+            Occurs when a <see cref="T:PhaseOne.Plugin.ButtonItem"/> has been pressed.
+            </summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.SettingsExtensions">
+            <summary>
+            Extension methods for settings related objects.
+            </summary>
+        </member>
+        <member name="M:PhaseOne.Plugin.SettingsExtensions.GetItemById(PhaseOne.Plugin.ElementsGroup[],System.String)">
+            <summary>
+            Finds the first occurence of an <see cref="T:PhaseOne.Plugin.Item"/> with the given ID or null if the <see cref="T:PhaseOne.Plugin.Item"/> cannot be found
+            </summary>
+            <param name="argElementsGroups">Array of groups of elements used when searching for an element</param>
+            <param name="argId"></param>
+            <returns><see cref="T:PhaseOne.Plugin.Item"/> with the given Id, or null if cannot find any items matching given Id</returns>
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings">
+            <summary>
+            A static class <see cref="T:PhaseOne.Plugin.ProcessSettings"/> containing keys and enums necessary to create settings for <see cref="T:PhaseOne.Plugin.IVariantProcessing"/> protocol.
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COSupportedFileFormatsKey">
+            <summary>
+            Object for the key -> an array of <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat"/>
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormatKey">
+            <summary>
+            Default File Format. Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessBitsKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessBits"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessResolutionKey">
+            <summary>
+            Object for the key -> <see cref="T:System.UInt32"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnitKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnit"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessJpegBitsKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessBits"/>
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessJpegQualityKey">
+            <summary>
+            Object for the key -> <see cref="T:System.UInt32"/> between 1 to 100 (including)</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessTiffBitsKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessBits"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessTiffCompressionKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessTiffCompression"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethodKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleAmountKey">
+            <summary>
+            Object for the key -> <see cref="T:System.UInt32"/> 0 - 100 (including)</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleWidthKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Single"/> > 0</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleHeightKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Single"/> > 0</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleLengthKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Single"/> > 0</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessNeverUpscaleKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFixedScaleKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleAmountKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessWidthScaleKey">
+            <summary>
+            Configuring Width Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessHeightScaleKey">
+            <summary>
+            @name Configuring Height Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessBoundingBoxScaleKey">
+            <summary>
+            Dimensions Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleWidthKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleHeightKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessWidthByHeightScaleKey">
+            <summary>
+            Width by Height Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> Dictionary { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleWidthKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleHeightKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessLongEdgeScaleKey">
+            <summary>
+            Long Edge Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessShortEdgeScaleKey">
+            <summary>
+            Short Edge Output Scaling. Object for the key -> <see cref="T:System.Collections.Generic.Dictionary`2"/> { <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleUnitKey"/>: , <see cref="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleLengthKey"/>:  }</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessOutputProfileKey">
+            <summary>
+            Output Color Profile. Object for the key -> <see cref="T:System.String"/> - a path to the output profile</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessExportCropMethodKey">
+            <summary>
+            Cropping. Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COPublishCropMethod"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControlKey">
+            <summary>
+            Output Sharpening. Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningAmountKey">
+            <summary>
+            Object for the key -> <see cref="T:System.UInt32"/> between 0 - 1000 (including)</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningThresholdKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Single"/> betwwen 0 - 8 (including)</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningRadiusKey">
+            <summary>
+            Output Sharpening for Screen. Object for the key -> <see cref="T:System.Single"/> between 0 - 2.5 (including)</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Single"/> > 0</summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnitKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnit"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeKeywordsMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:PhaseOne.Plugin.ProcessSettings.COProcessMetadataIncludeKeywords"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeRatingMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeCopyrightMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeGPSCoordinateMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeCameraMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeAllOtherMetadataKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeAnnotationsKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessIncludeOverlayKey">
+            <summary>
+            Object for the key -> <see cref="T:System.Boolean"/></summary>
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat">
+            <summary>
+            Specifies the file format
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatJPEG">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatTIFF">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatJPEGXR">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatJPEG2000">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatPNG">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatDNG">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatPSD">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessFileFormat.COProcessFileFormatJPEGQuickProof">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessMetadataIncludeKeywords">
+            <summary>
+            Specifies how to include keywords
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessMetadataIncludeKeywords.COProcessMetadataIncludeKeywordsOff">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessMetadataIncludeKeywords.COProcessMetadataIncludeKeywordsIncludeAll">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessTiffCompression">
+            <summary>
+            Specifies the tiff compression
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessTiffCompression.COProcessTiffCompressionNone">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessTiffCompression.COProcessTiffCompressionZip">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessBits">
+            <summary>
+            Specifies the number of bits
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessBits.COProcessBits8bit">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessBits.COProcessBits16bit">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnit">
+            <summary>
+            Specifies the resolution unit
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnit.COProcessResolutionUnitInch">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnit.COProcessResolutionUnitMillimeter">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessResolutionUnit.COProcessResolutionUnitCentimeter">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod">
+            <summary>
+            Specifies the scale method
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodFixed">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodWidth">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodHeight">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodWidthByHeight">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodLongEdge">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessScaleMethod.COProcessScaleMethodShortEdge">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit">
+            <summary>
+            Specifies the size unit
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit.COProcessSizeUnitPixel">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit.COProcessSizeUnitInch">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit.COProcessSizeUnitMillimeter">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSizeUnit.COProcessSizeUnitCentimeter">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COPublishCropMethod">
+            <summary>
+            Specifies the crop method
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COPublishCropMethod.COPublishCropMethodDefault">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COPublishCropMethod.COPublishCropMethodIgnore">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COPublishCropMethod.COPublishCropMethodAsPath">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl">
+            <summary>
+            Specifies sharpening control
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl.COProcessSharpeningControlDisableOutputSharpening">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl.COProcessSharpeningControlScreen">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl.COProcessSharpeningControlPrint">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningControl.COProcessSharpeningControlDisabled">
+            
+        </member>
+        <member name="T:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnit">
+            <summary>
+            Specifies sharpening viewing distance unit
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnit.COProcessSharpeningViewingDistanceUnitInch">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnit.COProcessSharpeningViewingDistanceUnitCentimeter">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessSharpeningViewingDistanceUnit.COProcessSharpeningViewingDistanceUnitPercentage">
+            
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessICCProfileSRGB">
+            <summary>
+            Constant value for COProcessOutputProfileKey
+            </summary>
+        </member>
+        <member name="F:PhaseOne.Plugin.ProcessSettings.COProcessICCProfileAdobeRGB">
+            <summary>
+            Constant value for COProcessOutputProfileKey
+            </summary>
+        </member>
+    </members>
+</doc>

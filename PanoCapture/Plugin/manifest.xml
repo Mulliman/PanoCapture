@@ -1,0 +1,9 @@
+﻿<settings>
+  <id>uk.co.sammullins.captureone.panocapture</id>
+  <name>PanoCapture</name>
+  <description>A plugin that stiches panoramas using Hugin.</description>
+  <manufacturer>Sam Mullins</manufacturer>
+  <entryPoint>PanoCapturePlugin</entryPoint>
+  <version>0.1</version>
+  <supportUrl>https://www.phaseone.com/support</supportUrl>
+</settings>
