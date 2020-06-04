@@ -237,7 +237,7 @@ namespace PanoCapture.Plugin
                 Directory.CreateDirectory(outputFolder);
             }
 
-            var outputFileName = files.First().Split('.').First() + "-pano.tif";
+            var outputFileName = files.Last().Split('.').First() + "-pano.tif";
             var outputFile = Path.Combine(outputFolder, outputFileName);
 
             var builtFile = new PanoramaBuilder(outputFile, inputFiles.ToArray())
