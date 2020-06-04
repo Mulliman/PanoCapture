@@ -7,6 +7,26 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PanoCapture.Plugin", "Plugi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PanoCapture.Process", "PanoCapture.Process\PanoCapture.Process.csproj", "{7D4ACF81-3C19-4150-9DEC-3BFCD9D223A6}"
 EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "docs", "..\docs\", "{24411204-36AD-4091-9F77-FAF4B0F2502C}"
+	ProjectSection(WebsiteProperties) = preProject
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_61606"
+		Debug.AspNetCompiler.PhysicalPath = "..\docs\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_61606\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/localhost_61606"
+		Release.AspNetCompiler.PhysicalPath = "..\docs\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_61606\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		VWDPort = "61606"
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +49,14 @@ Global
 		{7D4ACF81-3C19-4150-9DEC-3BFCD9D223A6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7D4ACF81-3C19-4150-9DEC-3BFCD9D223A6}.Release|x64.ActiveCfg = Release|Any CPU
 		{7D4ACF81-3C19-4150-9DEC-3BFCD9D223A6}.Release|x64.Build.0 = Release|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Debug|x64.Build.0 = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Release|x64.ActiveCfg = Debug|Any CPU
+		{24411204-36AD-4091-9F77-FAF4B0F2502C}.Release|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
