@@ -9,6 +9,9 @@ powershell Compress-Archive ./* "..\..\..\..\docs\assets\releases\PanoCapture.Ca
 cd "..\..\..\..\docs\assets\releases"
 
 call del PanoCapture.CaptureOne.coplugin
+
+pause
+
 call RENAME PanoCapture.CaptureOne.zip PanoCapture.CaptureOne.coplugin
 
 pause
