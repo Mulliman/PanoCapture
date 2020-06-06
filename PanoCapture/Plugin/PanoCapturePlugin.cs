@@ -20,17 +20,24 @@ namespace PanoCapture.Plugin
             Image = Icon
         };
 
-        private string _rootDirectory;
+        private readonly PluginAction _runStackProcessAction = new PluginAction(
+                    "Create Blended Stack",
+                    "CreateBlendedStack")
+        {
+            Image = Icon
+        };
 
-        public string TempImagesPath { get; }
+
+        private string _rootDirectory;
 
         private SettingsRepository _settingsRepo;
         private Settings _settings;
 
+        private string _logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PanoCapture");
+
         public PanoCapturePlugin()
         {
             _rootDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            TempImagesPath = Path.Combine(_rootDirectory, "TempProjectLocation");
             _settingsRepo = new SettingsRepository(Path.Combine(_rootDirectory, "settings.json"));
             _settings = _settingsRepo.Get();
         }
@@ -169,7 +176,7 @@ namespace PanoCapture.Plugin
 
         public IEnumerable<PluginAction> GetEditingActions(IDictionary<string, int> argInfo)
         {
-            return new[] { _runProcessAction };
+            return new[] { _runProcessAction, _runStackProcessAction };
         }
 
         public PluginActionImageResult StartEditingTask(FileHandlingPluginTask argPluginTask, ReportProgress argProgress)
@@ -184,13 +191,23 @@ namespace PanoCapture.Plugin
                 var created = StartPanoCaptureProcessor(argPluginTask, argProgress, true);
                 return new PluginActionImageResult(new[] { created });
             }
+            else if(argPluginTask.PluginAction.Identifier == _runStackProcessAction.Identifier)
+            {
+                if (!IsValidInstallation())
+                {
+                    throw new PluginException("You do not have valid Hugin installation. Please see plugin settings to download or configure.");
+                }
+
+                var created = StartPanoCaptureStackProcessor(argPluginTask, argProgress, true);
+                return new PluginActionImageResult(new[] { created });
+            }
 
             return new PluginActionImageResult();
         }
 
         public IEnumerable<FileHandlingPluginTask> GetTasks(PluginAction argPluginAction, IEnumerable<string> argFiles)
         {
-            if (argPluginAction.Identifier == _runProcessAction.Identifier)
+            if (argPluginAction.Identifier == _runProcessAction.Identifier || argPluginAction.Identifier == _runStackProcessAction.Identifier)
             {
                 var files = argFiles.Where(f => f != null && (f.EndsWith("jpeg") || f.EndsWith(".jpg") || f.EndsWith(".tif") || f.EndsWith(".tiff")));
 
@@ -230,12 +247,7 @@ namespace PanoCapture.Plugin
                 return null;
             }
 
-            var outputFolder = Path.Combine(TempImagesPath, files.First().Split('.').First() + "-pano");
-
-            if (!Directory.Exists(outputFolder))
-            {
-                Directory.CreateDirectory(outputFolder);
-            }
+            var outputFolder = Path.GetDirectoryName(inputFiles.First());
 
             var outputFileName = files.Last().Split('.').First() + "-pano.tif";
             var outputFile = Path.Combine(outputFolder, outputFileName);
@@ -243,9 +255,39 @@ namespace PanoCapture.Plugin
             var builtFile = new PanoramaBuilder(outputFile, inputFiles.ToArray())
                 .SetHuginBinPath(_settings.HuginBinPath)
                 .SetTempDir(outputFolder)
+                .SetLogDir(_logDir)
                 .ConfigureProgressUpdater((update) => argProgress(update.StepNumber, update.StepTotal, update.StepText))
                 .Build()
-                .SaveLogInTempDir()
+                .GetGeneratedFile();
+
+            return builtFile;
+        }
+
+        private string StartPanoCaptureStackProcessor(FileHandlingPluginTask argTask, ReportProgress argProgress, bool crop)
+        {
+            return StartPanoCaptureStackProcessor(argTask.Files, argProgress, crop);
+        }
+
+        private string StartPanoCaptureStackProcessor(IEnumerable<string> inputFiles, ReportProgress argProgress, bool crop)
+        {
+            var files = inputFiles.Where(f => f != null && (f.EndsWith(".jpeg") || f.EndsWith(".jpg") || f.EndsWith(".tif") || f.EndsWith(".tiff")));
+
+            if (!files.Any())
+            {
+                return null;
+            }
+
+            var outputFolder = Path.GetDirectoryName(inputFiles.First());
+
+            var outputFileName = files.Last().Split('.').First() + "-stack.tif";
+            var outputFile = Path.Combine(outputFolder, outputFileName);
+
+            var builtFile = new BlendedStackBuilder(outputFile, inputFiles.ToArray())
+                .SetHuginBinPath(_settings.HuginBinPath)
+                .SetTempDir(outputFolder)
+                .SetLogDir(_logDir)
+                .ConfigureProgressUpdater((update) => argProgress(update.StepNumber, update.StepTotal, update.StepText))
+                .Build()
                 .GetGeneratedFile();
 
             return builtFile;
