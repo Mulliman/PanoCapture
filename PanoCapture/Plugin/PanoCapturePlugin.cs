@@ -52,7 +52,7 @@ namespace PanoCapture.Plugin
             var items = new List<Element>();
 
             var note = new TextItem("notelabel1", "Note:") { Value = "Capture One doesn't update until you exit the field." };
-            var tip = new TextItem("tiplabel1", "Tip:") { Value = "Plase click or tab off before pressing save or test." };
+            var tip = new TextItem("tiplabel1", "Tip:") { Value = "Please click or tab off before pressing save or test." };
             
             items.Add(note);
             items.Add(tip);

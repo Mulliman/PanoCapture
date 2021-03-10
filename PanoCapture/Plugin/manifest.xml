@@ -4,6 +4,6 @@
   <description>A plugin that stitches panoramas using Hugin.</description>
   <manufacturer>Sam Mullins</manufacturer>
   <entryPoint>PanoCapturePlugin</entryPoint>
-  <version>0.1</version>
+  <version>0.2</version>
   <supportUrl>https://www.phaseone.com/support</supportUrl>
 </settings>

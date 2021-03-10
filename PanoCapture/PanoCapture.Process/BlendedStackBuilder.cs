@@ -57,12 +57,12 @@ namespace PanoCapture.Process
                 var tempStackedFile = Path.Combine(outputFolder, "tempstacked");
                 
                 SendUpdate(1, numOfSteps, $"Step 1 of {numOfSteps} - Align Images");
-                RunProcessToEnd("align_image_stack.exe", $" -v -m -a {tempStackedFile} {_inputFilesAsArguments}");
+                RunProcessToEnd("align_image_stack.exe", $" -v -m -a \"{tempStackedFile}\" {_inputFilesAsArguments}");
 
                 // –exposure-weight=0 –saturation-weight=0 –contrast-weight=1 –hard-mask –output=base.tif OUT.tif
 
                 SendUpdate(2, numOfSteps, $"Step 2 of {numOfSteps} - Enfuse Images");
-                RunProcessToEnd("enfuse.exe", $" -v –exposure-weight=0 –saturation-weight=0 –contrast-weight=1 –contrast-edge-scale=0.3 –hard-mask {tempStackedFile}*.tif");
+                RunProcessToEnd("enfuse.exe", $" -v –exposure-weight=0 –saturation-weight=0 –contrast-weight=1 –contrast-edge-scale=0.3 –hard-mask \"{tempStackedFile}*.tif\"");
 
                 SendUpdate(3, numOfSteps, $"Step 3 of {numOfSteps} - Renaming");
                 // For some reason enfuse was always saving as a.tif no matter what.
